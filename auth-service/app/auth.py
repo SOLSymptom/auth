@@ -1,3 +1,5 @@
+# Cambio de prueba para activar GitHub Actions
+
 import boto3
 
 # Inicializar el cliente de DynamoDB
