@@ -4,29 +4,32 @@ on:
   push:
     paths:
       - 'auth-service/**'
-    branches:
-      - main
+      - '.github/workflows/auth-service.yml'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Login to Amazon ECR
-      uses: aws-actions/amazon-ecr-login@v1
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, Tag and Push
-      run: |
-        docker build -t auth-service ./auth-service
-        docker tag auth-service:latest ${{ secrets.ECR_REPO_AUTH }}:latest
-        docker push ${{ secrets.ECR_REPO_AUTH }}:latest
+      - name: Build Docker image
+        run: docker build -t auth-service ./auth-service
+
+      - name: Tag and Push image to ECR
+        env:
+          ECR_REPO_AUTH: ${{ secrets.ECR_REPO_AUTH }}
+        run: |
+          docker tag auth-service:latest $ECR_REPO_AUTH:latest
+          docker push $ECR_REPO_AUTH:latest
