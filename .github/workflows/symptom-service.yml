@@ -1,0 +1,25 @@
+name: Deploy Symptom Service
+
+on:
+  push:
+    paths:
+      - 'symptom-service/**'
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, Tag and Push
+      run: |
+        docker build -t symptom-service ./symptom-service
+        docker tag symptom-service:latest ${{ secrets.ECR_REPO_SYMPTOM }}:latest
+        docker push ${{ secrets.ECR_REPO_SYMPTOM }}:latest
